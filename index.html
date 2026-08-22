@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A manual Tanner graph constructor for CSS quantum codes."
+    />
+    <title>CSS Tanner Graph Constructor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Lattice surgery playground</p>
+          <h1>Tanner graph constructor</h1>
+        </div>
+        <div class="legend" aria-label="Node legend">
+          <span><i class="legend-dot data"></i>Data qubit</span>
+          <span><i class="legend-dot x-check"></i>X check</span>
+          <span><i class="legend-dot z-check"></i>Z check</span>
+          <span><i class="legend-dot original"></i>Original (locked)</span>
+          <span><i class="legend-dot added"></i>Added</span>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <aside class="toolbar" aria-label="Graph tools">
+          <div class="tool-group">
+            <label class="tool-label" for="level-select">Level</label>
+            <select class="level-select" id="level-select">
+              <option value="steane">Steane [[7,1,3]]</option>
+              <option value="hgp">HGP [[13,1,3]]</option>
+              <option value="hgp20">HGP [[20,4,2]]</option>
+              <option value="hgp27">HGP [[27,4,3]]</option>
+              <option value="hgp41">HGP [[41,1,5]]</option>
+              <option value="hgp100">HGP [[100,4,5]]</option>
+            </select>
+          </div>
+
+          <div class="tool-group">
+            <p class="tool-label">Add node</p>
+            <button class="tool-button add-data" data-add-node="data">
+              <span class="tool-icon circle-icon"></span>
+              Data
+            </button>
+            <button class="tool-button add-x" data-add-node="x">
+              <span class="tool-icon square-icon">X</span>
+              X check
+            </button>
+            <button class="tool-button add-z" data-add-node="z">
+              <span class="tool-icon square-icon">Z</span>
+              Z check
+            </button>
+          </div>
+
+          <div class="tool-group">
+            <p class="tool-label">Edit graph</p>
+            <button class="tool-button" id="connect-button">
+              <span class="tool-symbol edge-symbol" aria-hidden="true"></span>
+              Add edge
+            </button>
+            <button class="tool-button danger" id="delete-button">
+              <span class="tool-symbol text-symbol" aria-hidden="true">DEL</span>
+              Delete selected
+            </button>
+          </div>
+
+          <div class="tool-group">
+            <p class="tool-label">Graph</p>
+            <button class="tool-button secondary" id="reset-button">
+              <span class="tool-symbol text-symbol" aria-hidden="true">R</span>
+              Reset initial
+            </button>
+            <button class="tool-button secondary" id="clear-added-button">
+              <span class="tool-symbol text-symbol" aria-hidden="true">C</span>
+              Remove additions
+            </button>
+            <button class="tool-button secondary" id="fit-button">
+              <span class="tool-symbol text-symbol" aria-hidden="true">FIT</span>
+              Fit view
+            </button>
+          </div>
+
+          <div class="instructions">
+            <p class="tool-label">Controls</p>
+            <p>Drag any node anywhere; the canvas is unbounded.</p>
+            <p>Drag the background to pan, scroll to zoom, or press <strong>Fit view</strong>.</p>
+            <p>Solid nodes and edges are the original code and cannot be deleted.</p>
+            <p>Dashed nodes and edges are your additions; select one to delete it.</p>
+            <p>To connect, choose <strong>Add edge</strong> and select two nodes.</p>
+            <p>Magenta marks anticommuting checks; click one to see its shared qubits.</p>
+          </div>
+        </aside>
+
+        <div class="canvas-panel">
+          <div class="canvas-header">
+            <div>
+              <strong id="graph-name"></strong>
+              <span id="graph-stats"></span>
+            </div>
+            <p id="mode-message" aria-live="polite">Select or drag a node</p>
+          </div>
+
+          <section class="challenge-panel" aria-labelledby="challenge-title">
+            <div class="challenge-objective">
+              <p class="challenge-kicker">Level objective</p>
+              <h2 id="challenge-title">
+                Measure <span class="operator" id="target-operator"></span>
+              </h2>
+              <p id="challenge-description">
+                Make the highlighted logical operator an X stabilizer while removing exactly one logical qubit.
+              </p>
+            </div>
+            <div class="challenge-ledger" aria-live="polite">
+              <div class="challenge-result" id="challenge-result">Gadget incomplete</div>
+              <div class="ledger-items">
+                <span class="ledger-item" id="ledger-commutation">Stabilizers commute</span>
+                <span class="ledger-item" id="ledger-stabilizer">Target is stabilized</span>
+                <span class="ledger-item" id="ledger-dimension">Exactly one logical removed</span>
+              </div>
+              <p class="algebra-ledger" id="algebra-ledger"></p>
+              <div class="ldpc-score" aria-label="LDPC optimization score">
+                <span class="ldpc-score-label">LDPC profile</span>
+                <span id="degree-x">max deg X = 0</span>
+                <span id="degree-z">max deg Z = 0</span>
+                <span id="degree-data">max deg data = 0</span>
+                <span id="added-data-count">added data = 0</span>
+              </div>
+              <p class="optimization-note">
+                Optimization goal: minimize all three maximum degrees, then added data qubits.
+              </p>
+            </div>
+          </section>
+
+          <div class="conflict-bar">
+            <span class="conflict-title" id="conflict-summary">No anticommuting pairs</span>
+            <div class="conflict-chips" id="conflict-chips"></div>
+          </div>
+
+          <svg
+            id="graph-canvas"
+            role="application"
+            aria-label="Editable Tanner graph canvas"
+            viewBox="0 0 1000 680"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <defs>
+              <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="4" stdDeviation="5" flood-opacity="0.16" />
+              </filter>
+              <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#dce3e8" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect
+              id="canvas-background"
+              class="canvas-background"
+              width="1000"
+              height="680"
+              fill="url(#grid)"
+            />
+            <g id="edges-layer"></g>
+            <g id="pair-arcs-layer"></g>
+            <g id="nodes-layer"></g>
+            <g id="pair-tokens-layer"></g>
+          </svg>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
