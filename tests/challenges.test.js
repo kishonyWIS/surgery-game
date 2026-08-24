@@ -162,10 +162,18 @@ function assertValid(id, complex) {
   const signatures = new Set();
   for (let seed = 1; seed <= 250; seed += 1) {
     const challenge = generateRandomChallenge(seed);
+    const forcedEdges = challenge.zChecks
+      .filter((check) => check.support.length === 2)
+      .map((check) => ({
+        id: `pair-${check.id}-0`,
+        source: check.support[0],
+        target: check.support[1],
+        type: "measurement_required",
+      }));
     const solved = {
       vertices: challenge.vertices,
-      edges: challenge.edges,
-      faces: challenge.solutionFaces,
+      edges: [...forcedEdges, ...challenge.solutionEdges],
+      faces: [],
     };
     const report = analyzeComplex(solved, challenge.caps);
     assert.strictEqual(
@@ -173,13 +181,25 @@ function assertValid(id, complex) {
       true,
       `random seed ${seed}: ${report.issues.map((issue) => issue.message).join(" | ")}`,
     );
-    assert.ok(challenge.vertices.length >= 10 && challenge.vertices.length <= 14);
-    assert.strictEqual(challenge.solutionFaces.length, challenge.vertices.length - 2);
+    const requirements = challenge.zChecks.map((check) => ({
+      id: check.id,
+      vertexIds: check.support,
+    }));
+    assert.ok(
+      findMatchingAssignments(solved, requirements),
+      `random seed ${seed}: every Z-overlap needs a matching`,
+    );
+    assert.ok(challenge.vertices.length >= 10 && challenge.vertices.length <= 16);
+    assert.strictEqual(solved.edges.length, solved.vertices.length - 1);
+    assert.deepStrictEqual(challenge.caps, {});
     signatures.add(
-      challenge.edges.map((edge) => [edge.source, edge.target].sort().join("-")).sort().join(","),
+      [
+        ...challenge.zChecks.map((check) => check.support.join("-")),
+        ...challenge.solutionEdges.map((edge) => `${edge.source}-${edge.target}`),
+      ].join(","),
     );
   }
-  assert.ok(signatures.size > 200, "random generator should produce varied triangulations");
+  assert.ok(signatures.size > 240, "random generator should produce varied construction puzzles");
 }
 
-console.log("PASS  all seven campaign challenges have a valid bounded-load solution");
+console.log("PASS  all seven campaign challenges have a valid solution");

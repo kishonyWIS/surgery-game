@@ -12,112 +12,143 @@
     };
   }
 
-  function edgeKey(first, second) {
-    return first < second ? `${first}:${second}` : `${second}:${first}`;
+  function shuffle(items, random) {
+    const result = [...items];
+    for (let index = result.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(random() * (index + 1));
+      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+    }
+    return result;
   }
 
-  function triangulate(vertexCount, random) {
-    const polygon = Array.from({ length: vertexCount }, (_, index) => index);
-    const triangles = [];
-
-    while (polygon.length > 3) {
-      const earIndex = Math.floor(random() * polygon.length);
-      const previous = polygon[(earIndex - 1 + polygon.length) % polygon.length];
-      const current = polygon[earIndex];
-      const next = polygon[(earIndex + 1) % polygon.length];
-      triangles.push([previous, current, next]);
-      polygon.splice(earIndex, 1);
-    }
-    triangles.push([...polygon]);
-    return triangles;
+  function randomItem(items, random) {
+    return items[Math.floor(random() * items.length)];
   }
 
-  function edgeSetFor(vertexCount, triangles) {
-    const pairs = new Map();
-    for (let index = 0; index < vertexCount; index += 1) {
-      const next = (index + 1) % vertexCount;
-      pairs.set(edgeKey(index, next), [index, next]);
+  /**
+   * Build a random tree with a planted matching.
+   *
+   * First pair shuffled vertices. Then connect those two-vertex components by
+   * random inter-component edges. The result is always a tree, while the planted
+   * pair edges give every generated even Z-overlap a known valid matching.
+   */
+  function plantedTree(vertexCount, random) {
+    const order = shuffle(
+      Array.from({ length: vertexCount }, (_, index) => index),
+      random,
+    );
+    const components = [];
+    const pairEdges = [];
+
+    for (let index = 0; index + 1 < order.length; index += 2) {
+      const pair = [order[index], order[index + 1]];
+      components.push(pair);
+      pairEdges.push(pair);
     }
-    for (const triangle of triangles) {
-      for (let index = 0; index < 3; index += 1) {
-        const first = triangle[index];
-        const second = triangle[(index + 1) % 3];
-        pairs.set(edgeKey(first, second), [first, second]);
-      }
+    if (order.length % 2 === 1) {
+      components.push([order[order.length - 1]]);
     }
-    return pairs;
+
+    const connectorEdges = [];
+    for (let index = 1; index < components.length; index += 1) {
+      const earlier = components[Math.floor(random() * index)];
+      connectorEdges.push([
+        randomItem(components[index], random),
+        randomItem(earlier, random),
+      ]);
+    }
+    return { pairEdges, connectorEdges, treeEdges: [...pairEdges, ...connectorEdges] };
   }
 
-  function maximumDegree(vertexCount, pairs) {
-    const degrees = new Array(vertexCount).fill(0);
-    for (const [first, second] of pairs.values()) {
-      degrees[first] += 1;
-      degrees[second] += 1;
+  function generatedChecks(pairEdges, random) {
+    const shuffledPairs = shuffle(pairEdges, random);
+    const forcedCount = Math.min(3, Math.max(2, Math.floor(pairEdges.length / 3)));
+    const forcedPairs = shuffledPairs.slice(0, forcedCount);
+    const hiddenPairs = shuffledPairs.slice(forcedCount);
+    const checks = forcedPairs.map((pair, index) => ({
+      id: `z${index}`,
+      label: `Z${toSubscript(index)}`,
+      support: pair.map((vertex) => `q${vertex}`),
+    }));
+
+    const largeCount = 4 + Math.floor(random() * 3);
+    const seenSupports = new Set();
+    for (let index = 0; index < largeCount; index += 1) {
+      const pairCount = pairEdges.length >= 6 && random() < 0.35 ? 3 : 2;
+      let selected;
+      let supportKey;
+      do {
+        const requiredHidden = randomItem(hiddenPairs, random);
+        const remaining = shuffle(
+          pairEdges.filter((pair) => pair !== requiredHidden),
+          random,
+        ).slice(0, pairCount - 1);
+        selected = shuffle([requiredHidden, ...remaining], random);
+        supportKey = selected.flat().sort((left, right) => left - right).join(",");
+      } while (seenSupports.has(supportKey));
+      seenSupports.add(supportKey);
+
+      const checkNumber = forcedCount + index;
+      checks.push({
+        id: `z${checkNumber}`,
+        label: `Z${toSubscript(checkNumber)}`,
+        support: selected.flat().map((vertex) => `q${vertex}`),
+      });
     }
-    return Math.max(...degrees);
+    return { checks, forcedPairs };
+  }
+
+  function toSubscript(value) {
+    const digits = "₀₁₂₃₄₅₆₇₈₉";
+    return String(value)
+      .split("")
+      .map((digit) => digits[Number(digit)])
+      .join("");
   }
 
   function generateRandomChallenge(seed = Date.now()) {
     const normalizedSeed = Number(seed) >>> 0;
     const random = mulberry32(normalizedSeed);
-    const vertexCount = 10 + Math.floor(random() * 5);
-    let triangles;
-    let pairs;
-
-    // Random ear removal always gives a valid triangulation. Retry to favor a
-    // sparse instance; if no degree-five sample appears, the generated cap is
-    // raised to the immutable graph's actual load so play never starts invalid.
-    for (let attempt = 0; attempt < 500; attempt += 1) {
-      triangles = triangulate(vertexCount, random);
-      pairs = edgeSetFor(vertexCount, triangles);
-      if (maximumDegree(vertexCount, pairs) <= 5) break;
-    }
-    const generatedMaxDegree = maximumDegree(vertexCount, pairs);
+    const vertexCount = 10 + Math.floor(random() * 7);
+    const construction = plantedTree(vertexCount, random);
+    const { checks, forcedPairs } = generatedChecks(construction.pairEdges, random);
+    const forcedKeys = new Set(forcedPairs.map((pair) => pair.join(":")));
 
     const vertices = Array.from({ length: vertexCount }, (_, index) => {
       const angle = -Math.PI / 2 + (2 * Math.PI * index) / vertexCount;
+      const radialJitter = 0.9 + random() * 0.16;
       return {
         id: `q${index}`,
         label: `q${index}`,
         type: "measurement",
-        x: Math.round(500 + 330 * Math.cos(angle)),
-        y: Math.round(340 + 250 * Math.sin(angle)),
+        x: Math.round(500 + 335 * radialJitter * Math.cos(angle)),
+        y: Math.round(340 + 250 * radialJitter * Math.sin(angle)),
       };
     });
 
-    const edgeIds = new Map();
-    const edges = [...pairs.values()].map(([first, second], index) => {
-      const id = `g${index}`;
-      edgeIds.set(edgeKey(first, second), id);
-      return {
-        id,
-        source: `q${first}`,
-        target: `q${second}`,
-        type: "measurement_required",
-      };
-    });
-    const solutionFaces = triangles.map((triangle, index) => ({
-      id: `solution-${index}`,
-      boundaryEdgeIds: triangle.map((first, corner) =>
-        edgeIds.get(edgeKey(first, triangle[(corner + 1) % 3])),
-      ),
-    }));
+    const solutionEdges = construction.treeEdges
+      .filter((pair) => !forcedKeys.has(pair.join(":")))
+      .map(([source, target], index) => ({
+        id: `solution-${index}`,
+        source: `q${source}`,
+        target: `q${target}`,
+        type: "edge",
+      }));
 
     return {
       id: "random",
-      name: `Random triangulation #${normalizedSeed}`,
-      title: "Recover the hidden triangulation",
-      description: `Seed ${normalizedSeed} produced ${vertexCount} boundary vertices and ${edges.length} locked edges. The graph was generated by randomized ear removal; identify its triangular faces.`,
-      hint: "Every bounded region is a triangle. Select Face from edges and close each triangular loop; every internal diagonal belongs to two faces.",
-      caps: {
-        maxVertexDegree: Math.max(5, generatedMaxDegree),
-        maxFaceWeight: 3,
-        maxFacesPerEdge: 2,
-      },
+      name: `Random construction #${normalizedSeed}`,
+      title: "Build a random surgery complex",
+      description: `Seed ${normalizedSeed} produced ${vertexCount} logical-support vertices, ${forcedPairs.length} forced size-two overlaps, and ${checks.length - forcedPairs.length} larger even Z-overlaps. Choose matching edges, connect the graph, and fill any cycles you create.`,
+      hint: "The instance has at least one tree solution, so faces are optional if you choose edges carefully. Reset generates a completely new code-overlap puzzle.",
+      caps: {},
+      logicalX: vertices.map((vertex) => vertex.id),
+      zChecks: checks,
       vertices,
-      edges,
+      edges: [],
       faces: [],
-      solutionFaces,
+      solutionEdges,
+      solutionFaces: [],
       seed: normalizedSeed,
     };
   }

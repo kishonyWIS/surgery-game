@@ -191,7 +191,9 @@ async function loadChallenge(id) {
       loaded = await response.json();
     }
     if (token !== loadToken) return;
-    challenge = loaded;
+    challenge = clone(loaded);
+    delete challenge.solutionEdges;
+    delete challenge.solutionFaces;
     complex = {
       vertices: clone(loaded.vertices ?? []),
       edges: clone(loaded.edges ?? []),
@@ -278,6 +280,11 @@ function issueText(issue) {
 function renderMeters(report) {
   const metrics = reportMetrics(report);
   const caps = challenge?.caps ?? {};
+  const hasFiniteCaps = [
+    caps.maxVertexDegree,
+    caps.maxFaceWeight,
+    caps.maxFacesPerEdge,
+  ].some(Number.isFinite);
   meterElements.edges.textContent = `|E| = ${complex.edges.length}`;
   meterElements.beta0.textContent = `β₀ = ${metrics.beta0}`;
   meterElements.beta1.textContent = `β₁ = ${metrics.beta1}`;
@@ -304,11 +311,15 @@ function renderMeters(report) {
       metrics.maxFacesPerEdge > caps.maxFacesPerEdge,
   );
 
-  resultElement.textContent = report.valid ? "Valid LDPC filling" : "Complex incomplete";
+  resultElement.textContent = report.valid
+    ? hasFiniteCaps
+      ? "Valid LDPC filling"
+      : "Valid filling"
+    : "Complex incomplete";
   resultElement.classList.toggle("complete", report.valid);
   const score = report.valid
     ? `score = (${complex.edges.length}, ${complex.vertices.filter((v) => v.type === "auxiliary").length}, ${complex.faces.length})`
-    : "score unlocks when β₀=1, β₁=β₂=0 and every cap passes";
+    : `score unlocks when β₀=1 and β₁=β₂=0${hasFiniteCaps ? " and every cap passes" : ""}`;
   ledgerElement.textContent =
     `rank(∂₁)=${metrics.rankBoundary1 ?? "?"} | rank(∂₂)=${metrics.rankBoundary2 ?? "?"} | ${score}`;
 }
