@@ -1,0 +1,29 @@
+{
+  "id": "pairing",
+  "name": "Choose the Z-check pairing",
+  "title": "Pair first, then fill",
+  "description": "Three Z-checks each meet the logical in four qubits, and the size-two overlap of Z₃ is already a forced edge. Add edges until every highlighted overlap contains a perfect matching, then connect and fill what is left.",
+  "hint": "One edge may serve several checks: the forced q0–q1 edge already pairs half of Z₀ and half of Z₂. Two more hexagon sides finish all three matchings, and a path through the remaining vertices connects the complex without opening a cycle.",
+  "caps": {
+    "maxVertexDegree": 3,
+    "maxFaceWeight": 4,
+    "maxFacesPerEdge": 1
+  },
+  "logicalX": ["q0", "q1", "q2", "q3", "q4", "q5"],
+  "zChecks": [
+    { "id": "z0", "label": "Z₀", "support": ["q0", "q1", "q2", "q3"] },
+    { "id": "z1", "label": "Z₁", "support": ["q2", "q3", "q4", "q5"] },
+    { "id": "z2", "label": "Z₂", "support": ["q4", "q5", "q0", "q1"] },
+    { "id": "z3", "label": "Z₃", "support": ["q0", "q1"] }
+  ],
+  "vertices": [
+    { "id": "q0", "label": "q0", "type": "measurement", "x": 500, "y": 120 },
+    { "id": "q1", "label": "q1", "type": "measurement", "x": 699, "y": 235 },
+    { "id": "q2", "label": "q2", "type": "measurement", "x": 699, "y": 465 },
+    { "id": "q3", "label": "q3", "type": "measurement", "x": 500, "y": 580 },
+    { "id": "q4", "label": "q4", "type": "measurement", "x": 301, "y": 465 },
+    { "id": "q5", "label": "q5", "type": "measurement", "x": 301, "y": 235 }
+  ],
+  "edges": [],
+  "faces": []
+}

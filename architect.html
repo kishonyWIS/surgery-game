@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Build low-density 2-complex fillings for quantum measurement graphs."
+    />
+    <title>Ancilla Architect</title>
+    <link rel="stylesheet" href="styles.css?v=4" />
+  </head>
+  <body class="architect-page">
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Parsimonious qLDPC surgery puzzle</p>
+          <h1>Ancilla Architect</h1>
+        </div>
+        <div class="architect-top-actions">
+          <div class="legend" aria-label="Cell legend">
+            <span><i class="legend-dot architect-measurement"></i>Logical support</span>
+            <span><i class="legend-line required"></i>Forced edge</span>
+            <span><i class="legend-line filling"></i>Player edge</span>
+            <span><i class="legend-line face"></i>Face boundary</span>
+          </div>
+          <a class="game-link" href="index.html">Tanner surgery game</a>
+        </div>
+      </header>
+
+      <section class="workspace architect-workspace">
+        <aside class="toolbar" aria-label="Complex tools">
+          <div class="tool-group">
+            <label class="tool-label" for="architect-level-select">Challenge</label>
+            <select class="level-select" id="architect-level-select">
+              <option value="square">1. Square</option>
+              <option value="triangles">2. Triangles only</option>
+              <option value="cone-trap">3. Cone trap</option>
+              <option value="theta">4. Theta congestion</option>
+              <option value="pairing">5. Choose the pairing</option>
+              <option value="ring">6. Twelve-qubit ring</option>
+              <option value="random">7. Random triangulation</option>
+            </select>
+          </div>
+
+          <div class="tool-group">
+            <p class="tool-label">Build</p>
+            <button class="tool-button" id="add-vertex-button">
+              <span class="tool-symbol text-symbol">+V</span>
+              Aux vertex
+            </button>
+            <button class="tool-button" id="add-edge-button">
+              <span class="tool-symbol edge-symbol" aria-hidden="true"></span>
+              Add edge
+            </button>
+            <button class="tool-button" id="add-face-button">
+              <span class="tool-symbol text-symbol">∂F</span>
+              Face from edges
+            </button>
+            <button class="tool-button danger" id="architect-delete-button">
+              <span class="tool-symbol text-symbol">DEL</span>
+              Delete selected
+            </button>
+          </div>
+
+          <div class="tool-group">
+            <p class="tool-label">Analyze</p>
+            <button class="tool-button attack-button" id="attack-button">
+              <span class="tool-symbol text-symbol">!</span>
+              Attack
+            </button>
+            <button class="tool-button secondary" id="architect-reset-button">
+              <span class="tool-symbol text-symbol">R</span>
+              Reset challenge
+            </button>
+            <button class="tool-button secondary" id="architect-clear-button">
+              <span class="tool-symbol text-symbol">C</span>
+              Remove additions
+            </button>
+            <button class="tool-button secondary" id="architect-fit-button">
+              <span class="tool-symbol text-symbol">FIT</span>
+              Fit view
+            </button>
+          </div>
+
+          <div class="pairing-panel" id="pairing-panel" hidden>
+            <p class="tool-label">Z-check pairings</p>
+            <div id="pairing-controls"></div>
+          </div>
+
+          <div class="instructions">
+            <p class="tool-label">Controls</p>
+            <p>Size-two Z-overlaps are placed as locked edges.</p>
+            <p>Add or remove ordinary edges until every larger highlighted overlap contains a matching.</p>
+            <p>One edge may serve several overlaps at once, so reuse beats duplication.</p>
+            <p>Add vertices and edges, then choose <strong>Face from edges</strong> and click a cycle.</p>
+            <p>The face is created as soon as the loop closes. Parallel edges and 2-faces are allowed.</p>
+            <p>Drag vertices to lay out the complex. Drag the background to pan; scroll to zoom.</p>
+            <p><strong>Attack</strong> exposes one obstruction at a time.</p>
+          </div>
+        </aside>
+
+        <div class="canvas-panel">
+          <div class="canvas-header">
+            <div>
+              <strong id="architect-name">Loading challenge…</strong>
+              <span id="architect-stats"></span>
+            </div>
+            <p id="architect-message" aria-live="polite">Loading…</p>
+          </div>
+
+          <section class="challenge-panel architect-challenge" aria-labelledby="architect-title">
+            <div class="challenge-objective">
+              <p class="challenge-kicker">Filling objective</p>
+              <h2 id="architect-title">Kill every internal cycle</h2>
+              <p id="architect-description"></p>
+            </div>
+            <div class="challenge-ledger" aria-live="polite">
+              <div class="challenge-result" id="architect-result">Complex incomplete</div>
+              <div class="architect-meters">
+                <span id="meter-edges">|E| = 0</span>
+                <span id="meter-b0">β₀ = ?</span>
+                <span id="meter-b1">β₁ = ?</span>
+                <span id="meter-b2">β₂ = ?</span>
+                <span id="meter-degree">deg = ?</span>
+                <span id="meter-face">face = ?</span>
+                <span id="meter-congestion">congestion = ?</span>
+              </div>
+              <p class="algebra-ledger" id="architect-ledger"></p>
+            </div>
+          </section>
+
+          <div class="attack-bar" id="attack-bar" aria-live="polite">
+            Press Attack to test the current filling.
+          </div>
+
+          <svg
+            id="architect-canvas"
+            role="application"
+            aria-label="Editable ancilla cell complex"
+            viewBox="0 0 1000 680"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <defs>
+              <filter id="architect-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="4" stdDeviation="5" flood-opacity="0.16" />
+              </filter>
+              <pattern id="architect-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#dce3e8" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect id="architect-background" class="canvas-background" fill="url(#architect-grid)" />
+            <g id="architect-face-layer"></g>
+            <g id="architect-edge-layer"></g>
+            <g id="architect-node-layer"></g>
+          </svg>
+        </div>
+      </section>
+    </main>
+
+    <script src="homology.js?v=5"></script>
+    <script src="random-challenge.js?v=5"></script>
+    <script src="architect.js?v=5"></script>
+  </body>
+</html>

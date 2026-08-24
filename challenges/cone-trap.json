@@ -1,0 +1,33 @@
+{
+  "id": "cone-trap",
+  "name": "Cone trap",
+  "title": "Fill without a high-degree apex",
+  "description": "This eight-cycle needs triangular faces, but every vertex has degree cap four. A naive cone violates LDPC sparsity.",
+  "hint": "Triangulate in stages or introduce several auxiliary vertices; no single vertex can carry every spoke.",
+  "caps": {
+    "maxVertexDegree": 4,
+    "maxFaceWeight": 3,
+    "maxFacesPerEdge": 2
+  },
+  "vertices": [
+    { "id": "q0", "label": "q0", "type": "measurement", "x": 500, "y": 100 },
+    { "id": "q1", "label": "q1", "type": "measurement", "x": 700, "y": 170 },
+    { "id": "q2", "label": "q2", "type": "measurement", "x": 790, "y": 340 },
+    { "id": "q3", "label": "q3", "type": "measurement", "x": 700, "y": 510 },
+    { "id": "q4", "label": "q4", "type": "measurement", "x": 500, "y": 580 },
+    { "id": "q5", "label": "q5", "type": "measurement", "x": 300, "y": 510 },
+    { "id": "q6", "label": "q6", "type": "measurement", "x": 210, "y": 340 },
+    { "id": "q7", "label": "q7", "type": "measurement", "x": 300, "y": 170 }
+  ],
+  "edges": [
+    { "id": "g0", "source": "q0", "target": "q1", "type": "measurement_required" },
+    { "id": "g1", "source": "q1", "target": "q2", "type": "measurement_required" },
+    { "id": "g2", "source": "q2", "target": "q3", "type": "measurement_required" },
+    { "id": "g3", "source": "q3", "target": "q4", "type": "measurement_required" },
+    { "id": "g4", "source": "q4", "target": "q5", "type": "measurement_required" },
+    { "id": "g5", "source": "q5", "target": "q6", "type": "measurement_required" },
+    { "id": "g6", "source": "q6", "target": "q7", "type": "measurement_required" },
+    { "id": "g7", "source": "q7", "target": "q0", "type": "measurement_required" }
+  ],
+  "faces": []
+}

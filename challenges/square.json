@@ -1,0 +1,25 @@
+{
+  "id": "square",
+  "name": "Square: one boundary",
+  "title": "Fill the square",
+  "description": "The required measurement graph has one cycle. Turn that cycle into a face without adding any ancilla edges.",
+  "hint": "Select Face from edges, click all four gold edges, then press the face tool again.",
+  "caps": {
+    "maxVertexDegree": 2,
+    "maxFaceWeight": 4,
+    "maxFacesPerEdge": 1
+  },
+  "vertices": [
+    { "id": "q0", "label": "q0", "type": "measurement", "x": 330, "y": 190 },
+    { "id": "q1", "label": "q1", "type": "measurement", "x": 670, "y": 190 },
+    { "id": "q2", "label": "q2", "type": "measurement", "x": 670, "y": 500 },
+    { "id": "q3", "label": "q3", "type": "measurement", "x": 330, "y": 500 }
+  ],
+  "edges": [
+    { "id": "g0", "source": "q0", "target": "q1", "type": "measurement_required" },
+    { "id": "g1", "source": "q1", "target": "q2", "type": "measurement_required" },
+    { "id": "g2", "source": "q2", "target": "q3", "type": "measurement_required" },
+    { "id": "g3", "source": "q3", "target": "q0", "type": "measurement_required" }
+  ],
+  "faces": []
+}

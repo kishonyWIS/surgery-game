@@ -842,3 +842,329 @@ h1 {
     min-height: 480px;
   }
 }
+
+/* Ancilla Architect is a sibling game with its own cell-complex vocabulary. */
+.architect-top-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.game-link {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.legend-dot.architect-measurement {
+  border-color: #8a6815;
+  border-radius: 50%;
+  background: var(--data);
+}
+
+.legend-line {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 3px solid;
+}
+
+.legend-line.required {
+  border-color: #9b7116;
+}
+
+.legend-line.filling {
+  border-color: var(--accent);
+}
+
+.legend-line.face {
+  border-color: #7556a8;
+  border-top-style: dashed;
+}
+
+.architect-workspace {
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+
+.architect-challenge {
+  grid-template-columns: minmax(260px, 1fr) minmax(500px, 1.4fr);
+}
+
+.architect-meters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.architect-meters span {
+  padding: 5px 8px;
+  border: 1px solid #cbd8d3;
+  border-radius: 7px;
+  color: #315750;
+  background: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.69rem;
+  font-weight: 700;
+}
+
+.architect-meters span.over-cap {
+  color: #8e2f2a;
+  border-color: #dfaaa6;
+  background: #fff2f0;
+}
+
+.attack-button {
+  color: #fff;
+  border-color: #76509a;
+  background: #76509a;
+  font-weight: 800;
+}
+
+.attack-button:hover {
+  color: #fff;
+  border-color: #5d3a7d;
+  background: #5d3a7d;
+}
+
+.attack-bar {
+  min-height: 44px;
+  padding: 11px 20px;
+  color: #5f5870;
+  border-bottom: 1px solid var(--line);
+  background: #f8f5fb;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.attack-bar.success {
+  color: #12613e;
+  background: #eef8f1;
+}
+
+.attack-bar.failure {
+  color: #7d315d;
+  background: #fff1f8;
+}
+
+.pairing-panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #ded5c5;
+  border-radius: 10px;
+  background: #fffaf0;
+}
+
+.pairing-panel[hidden] {
+  display: none;
+}
+
+.pairing-control {
+  display: grid;
+  gap: 5px;
+}
+
+.pairing-control strong {
+  color: #6a5430;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.pairing-status {
+  color: #756b5b;
+  font-size: 0.68rem;
+}
+
+.pairing-status.complete {
+  color: #167347;
+  font-weight: 800;
+}
+
+.pairing-status.incomplete {
+  color: #9a4f2d;
+  font-weight: 750;
+}
+
+.pairing-action,
+.pairing-clear {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #d3c5ab;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.69rem;
+}
+
+.pairing-action.active {
+  color: #fff;
+  border-color: #76509a;
+  background: #76509a;
+}
+
+.pairing-clear {
+  color: var(--danger);
+}
+
+.pairing-clear:disabled {
+  color: #aaa39a;
+  cursor: not-allowed;
+}
+
+#architect-canvas {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 580px;
+  background: #fbfcfa;
+  touch-action: none;
+  user-select: none;
+}
+
+.architect-edge {
+  fill: none;
+  stroke-linecap: round;
+  cursor: pointer;
+}
+
+.architect-edge.measurement-required {
+  stroke: #a57a1d;
+  stroke-width: 7;
+}
+
+.architect-edge.edge,
+.architect-edge.filling {
+  stroke: var(--accent);
+  stroke-width: 5;
+}
+
+.architect-edge:hover,
+.architect-edge.selected {
+  stroke: #6e3e96;
+  stroke-width: 9;
+}
+
+.architect-edge.face-pick {
+  stroke: #76509a;
+  stroke-width: 9;
+}
+
+.architect-edge.witness {
+  stroke: var(--conflict);
+  stroke-width: 10;
+}
+
+.architect-face-trace {
+  fill: none;
+  stroke: #76509a;
+  stroke-width: 12;
+  stroke-linecap: round;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.architect-face-trace.selected {
+  stroke-width: 18;
+  opacity: 0.32;
+}
+
+.architect-face-label {
+  fill: #61417f;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  text-anchor: middle;
+}
+
+.architect-node {
+  cursor: grab;
+}
+
+.architect-node.dragging {
+  cursor: grabbing;
+}
+
+.architect-node-shape {
+  stroke-width: 3;
+  filter: url("#architect-shadow");
+}
+
+.architect-node.measurement .architect-node-shape {
+  fill: var(--data);
+  stroke: var(--data-border);
+}
+
+.architect-node.auxiliary .architect-node-shape {
+  fill: #d8eeeb;
+  stroke: var(--accent-dark);
+  stroke-dasharray: 7 5;
+}
+
+.architect-node.selected .architect-node-shape,
+.architect-node.connect-source .architect-node-shape {
+  stroke: #6e3e96;
+  stroke-width: 7;
+}
+
+.architect-node.witness .architect-node-shape {
+  stroke: var(--conflict);
+  stroke-width: 8;
+}
+
+.pairing-overlap-ring {
+  fill: none;
+  stroke: #d28b25;
+  stroke-width: 3;
+  stroke-dasharray: 3 5;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.architect-node.pairing-active .pairing-overlap-ring {
+  stroke: #76509a;
+  stroke-width: 5;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+.architect-node.pairing-done .pairing-overlap-ring {
+  stroke: #238658;
+}
+
+.architect-node.pairing-source .pairing-overlap-ring {
+  stroke: var(--conflict);
+  stroke-width: 7;
+}
+
+.architect-node-label {
+  fill: #493a14;
+  font-size: 14px;
+  font-weight: 850;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.architect-node.auxiliary .architect-node-label {
+  fill: var(--accent-dark);
+}
+
+@media (max-width: 900px) {
+  .architect-challenge {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .architect-top-actions {
+    justify-items: start;
+  }
+
+  .architect-workspace {
+    display: flex;
+  }
+
+  #architect-canvas {
+    min-height: 480px;
+  }
+}

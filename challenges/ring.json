@@ -1,0 +1,53 @@
+{
+  "id": "ring",
+  "name": "Twelve-qubit ring",
+  "title": "Pair a whole ring, then fill it",
+  "description": "The logical touches twelve qubits. Six size-two Z-checks arrive as forced edges, and three more checks each meet the logical in four qubits. Pair those three, connect everything, and kill the cycles your pairing creates.",
+  "hint": "Each four-qubit overlap already contains one forced edge, so a single chord finishes it: q1–q4, q5–q8, q9–q0. Those three chords close one six-cycle, which one more chord splits into two faces of weight four. The three leftover forced edges still need connecting to the main body.",
+  "caps": {
+    "maxVertexDegree": 4,
+    "maxFaceWeight": 4,
+    "maxFacesPerEdge": 2
+  },
+  "logicalX": [
+    "q0",
+    "q1",
+    "q2",
+    "q3",
+    "q4",
+    "q5",
+    "q6",
+    "q7",
+    "q8",
+    "q9",
+    "q10",
+    "q11"
+  ],
+  "zChecks": [
+    { "id": "z0", "label": "Z₀", "support": ["q0", "q1"] },
+    { "id": "z1", "label": "Z₁", "support": ["q2", "q3"] },
+    { "id": "z2", "label": "Z₂", "support": ["q4", "q5"] },
+    { "id": "z3", "label": "Z₃", "support": ["q6", "q7"] },
+    { "id": "z4", "label": "Z₄", "support": ["q8", "q9"] },
+    { "id": "z5", "label": "Z₅", "support": ["q10", "q11"] },
+    { "id": "z6", "label": "Z₆", "support": ["q1", "q2", "q3", "q4"] },
+    { "id": "z7", "label": "Z₇", "support": ["q5", "q6", "q7", "q8"] },
+    { "id": "z8", "label": "Z₈", "support": ["q9", "q10", "q11", "q0"] }
+  ],
+  "vertices": [
+    { "id": "q0", "label": "q0", "type": "measurement", "x": 500, "y": 90 },
+    { "id": "q1", "label": "q1", "type": "measurement", "x": 670, "y": 124 },
+    { "id": "q2", "label": "q2", "type": "measurement", "x": 794, "y": 215 },
+    { "id": "q3", "label": "q3", "type": "measurement", "x": 840, "y": 340 },
+    { "id": "q4", "label": "q4", "type": "measurement", "x": 794, "y": 465 },
+    { "id": "q5", "label": "q5", "type": "measurement", "x": 670, "y": 556 },
+    { "id": "q6", "label": "q6", "type": "measurement", "x": 500, "y": 590 },
+    { "id": "q7", "label": "q7", "type": "measurement", "x": 330, "y": 556 },
+    { "id": "q8", "label": "q8", "type": "measurement", "x": 206, "y": 465 },
+    { "id": "q9", "label": "q9", "type": "measurement", "x": 160, "y": 340 },
+    { "id": "q10", "label": "q10", "type": "measurement", "x": 206, "y": 215 },
+    { "id": "q11", "label": "q11", "type": "measurement", "x": 330, "y": 124 }
+  ],
+  "edges": [],
+  "faces": []
+}

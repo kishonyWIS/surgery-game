@@ -1,0 +1,28 @@
+{
+  "id": "theta",
+  "name": "Theta congestion",
+  "title": "Span two independent cycles",
+  "description": "Three paths join the same endpoints, so β₁ starts at two. Fill a cycle basis while keeping every edge in at most two faces.",
+  "hint": "Two four-edge faces are enough. They may share one of the three paths.",
+  "caps": {
+    "maxVertexDegree": 3,
+    "maxFaceWeight": 4,
+    "maxFacesPerEdge": 2
+  },
+  "vertices": [
+    { "id": "a", "label": "a", "type": "measurement", "x": 250, "y": 340 },
+    { "id": "u", "label": "u", "type": "measurement", "x": 500, "y": 150 },
+    { "id": "v", "label": "v", "type": "measurement", "x": 500, "y": 340 },
+    { "id": "w", "label": "w", "type": "measurement", "x": 500, "y": 530 },
+    { "id": "b", "label": "b", "type": "measurement", "x": 750, "y": 340 }
+  ],
+  "edges": [
+    { "id": "gu0", "source": "a", "target": "u", "type": "measurement_required" },
+    { "id": "gu1", "source": "u", "target": "b", "type": "measurement_required" },
+    { "id": "gv0", "source": "a", "target": "v", "type": "measurement_required" },
+    { "id": "gv1", "source": "v", "target": "b", "type": "measurement_required" },
+    { "id": "gw0", "source": "a", "target": "w", "type": "measurement_required" },
+    { "id": "gw1", "source": "w", "target": "b", "type": "measurement_required" }
+  ],
+  "faces": []
+}
